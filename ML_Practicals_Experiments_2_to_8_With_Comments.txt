@@ -1,0 +1,442 @@
+MACHINE LEARNING PRACTICALS — EXPERIMENTS 2 TO 8
+Mumbai University | Semester VII Computer Engineering
+Complete Python Programs + Installation Commands
+======================================================================
+
+IMPORTANT
+---------
+- Each experiment below is a complete, standalone Python program.
+- Copy each experiment into its own .py file, for example: exp2_linear_regression.py.
+- Keep indentation exactly as shown (4 spaces inside blocks).
+- Run the program from a terminal using: python filename.py
+- These examples use small demonstration datasets.
+- Experiment 5 uses the current scikit-learn parameter `estimator=`.
+  If the college PC has an older scikit-learn version, see the note at
+  the end of Experiment 5.
+- A graph window will appear for experiments that use matplotlib.
+  Close the graph window to let the program finish.
+
+======================================================================
+EXPERIMENT 2 — LINEAR REGRESSION
+======================================================================
+
+# Import pandas for tabular data, matplotlib for plotting, and LinearRegression for the model.
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+
+# Create a small dataset containing study hours and corresponding marks.
+data = {
+    'Hours': [1, 2, 3, 4, 5],
+    'Marks': [20, 30, 40, 50, 60]
+}
+
+# Convert the dictionary to a DataFrame and display the sample data.
+df = pd.DataFrame(data)
+print("Dataset:")
+print(df)
+
+# X is the input feature (Hours); y is the value to predict (Marks).
+X = df[['Hours']]
+y = df['Marks']
+
+# Create the model and train it using the input features and known marks.
+model = LinearRegression()
+model.fit(X, y)
+
+# Predict the marks for a student who studies for 6 hours.
+new_data = pd.DataFrame({'Hours': [6]})
+predicted_marks = model.predict(new_data)
+
+print("\nSlope:", model.coef_[0])
+print("Intercept:", model.intercept_)
+print("Predicted marks for 6 hours:", predicted_marks[0])
+
+plt.scatter(X['Hours'], y, color='blue', label='Actual Marks')
+plt.plot(X['Hours'], model.predict(X), color='red', label='Regression Line')
+plt.xlabel("Hours Studied")
+plt.ylabel("Marks")
+plt.title("Linear Regression: Hours vs Marks")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+
+======================================================================
+EXPERIMENT 3 — LOGISTIC REGRESSION
+======================================================================
+
+# Import the libraries needed for data handling, plotting, and classification.
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+
+# Result 0 represents Fail and result 1 represents Pass.
+data = {
+    'Hours': [1, 2, 3, 4, 5, 6],
+    'Result': [0, 0, 0, 1, 1, 1]
+}
+
+df = pd.DataFrame(data)
+
+print("Dataset:")
+print(df)
+
+# Select study hours as the input feature and Result as the target class.
+X = df[['Hours']]
+y = df['Result']
+
+# Create and train the logistic regression classifier.
+model = LogisticRegression()
+model.fit(X, y)
+
+# Predict whether a student who studies for 5 hours passes or fails.
+new_student = pd.DataFrame({'Hours': [5]})
+predicted_result = model.predict(new_student)
+
+# Obtain the estimated probabilities for class 0 (Fail) and class 1 (Pass).
+probability = model.predict_proba(new_student)
+
+print("\nPredicted result for 5 hours:", predicted_result[0])
+print("Probability of Fail:", probability[0][0])
+print("Probability of Pass:", probability[0][1])
+
+# Generate 100 study-hour values and calculate the probability of passing
+# at each value. reshape(-1, 1) creates the 2D input expected by scikit-learn.
+hours_range = np.linspace(1, 6, 100).reshape(-1, 1)
+probabilities = model.predict_proba(hours_range)[:, 1]
+
+# Plot the observed results and the predicted probability curve.
+plt.scatter(X['Hours'], y, color='blue', label='Actual Results')
+plt.plot(hours_range, probabilities, color='red', label='Probability of Pass')
+plt.xlabel("Hours Studied")
+plt.ylabel("Result / Probability of Pass")
+plt.title("Logistic Regression: Pass or Fail")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+
+======================================================================
+EXPERIMENT 4 — DECISION TREE CLASSIFIER (ENTROPY)
+======================================================================
+
+# Import pandas, plotting tools, and the decision tree classifier/visualizer.
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+
+# Create sample student data; 0 means Fail and 1 means Pass.
+data = {
+    'Hours': [1, 2, 3, 4, 5, 6],
+    'Attendance': [50, 55, 60, 70, 80, 90],
+    'Result': [0, 0, 0, 1, 1, 1]
+}
+
+df = pd.DataFrame(data)
+
+print("Dataset:")
+print(df)
+
+# Use Hours and Attendance as input features; Result is the target.
+X = df[['Hours', 'Attendance']]
+y = df['Result']
+
+# Create an entropy-based decision tree and train it on the sample data.
+model = DecisionTreeClassifier(criterion='entropy', random_state=0)
+model.fit(X, y)
+
+# Predict the result for a student with 4 study hours and 75% attendance.
+new_student = pd.DataFrame({'Hours': [4], 'Attendance': [75]})
+predicted_result = model.predict(new_student)
+
+print("\nPredicted result:", predicted_result[0])
+
+# Draw the trained decision tree so its decision rules can be inspected.
+plt.figure(figsize=(10, 6))
+plot_tree(
+    model,
+    feature_names=['Hours', 'Attendance'],
+    class_names=['Fail', 'Pass'],
+    filled=True
+)
+plt.title("Decision Tree Classifier")
+plt.show()
+
+
+======================================================================
+EXPERIMENT 5 — ADABOOST CLASSIFIER
+======================================================================
+
+# Import data/plotting libraries, AdaBoost, and a decision tree weak learner.
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+
+# Create sample student data; 0 means Fail and 1 means Pass.
+data = {
+    'Hours': [1, 2, 3, 4, 5, 6],
+    'Attendance': [50, 55, 60, 70, 80, 90],
+    'Result': [0, 0, 0, 1, 1, 1]
+}
+
+df = pd.DataFrame(data)
+
+print("Dataset:")
+print(df)
+
+# Select the input features and target class.
+X = df[['Hours', 'Attendance']]
+y = df['Result']
+
+# A depth-1 decision tree is a simple weak learner (decision stump).
+weak_model = DecisionTreeClassifier(max_depth=1, random_state=0)
+
+# AdaBoost combines weak learners in sequence to build a stronger model.
+model = AdaBoostClassifier(
+    estimator=weak_model,
+    n_estimators=10,
+    random_state=0
+)
+
+# Train AdaBoost using the sample data.
+model.fit(X, y)
+
+# Predict the result for a new student.
+new_student = pd.DataFrame({'Hours': [4], 'Attendance': [75]})
+predicted_result = model.predict(new_student)
+
+# Print the predicted class and accuracy on the training dataset.
+print("\nPredicted result:", predicted_result[0])
+print("Training accuracy:", model.score(X, y))
+
+# Plot the actual training labels against study hours.
+plt.scatter(X['Hours'], y, color='blue', label='Actual Results')
+plt.xlabel("Hours Studied")
+plt.ylabel("Result (0 = Fail, 1 = Pass)")
+plt.title("AdaBoost Classification")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+NOTE FOR OLDER SCIKIT-LEARN:
+If your college PC reports that `estimator` is an unexpected keyword
+argument, replace `estimator=weak_model` with `base_estimator=weak_model`.
+Use only the parameter name supported by the installed version.
+
+
+======================================================================
+EXPERIMENT 6 — SUPPORT VECTOR MACHINE (SVM)
+======================================================================
+
+# Import pandas, plotting tools, the SVM classifier, and feature scaling.
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
+
+# Create sample student data; 0 means Fail and 1 means Pass.
+data = {
+    'Hours': [1, 2, 3, 4, 5, 6],
+    'Attendance': [50, 55, 60, 70, 80, 90],
+    'Result': [0, 0, 0, 1, 1, 1]
+}
+
+df = pd.DataFrame(data)
+
+print("Dataset:")
+print(df)
+
+# Separate input features from the target class.
+X = df[['Hours', 'Attendance']]
+y = df['Result']
+
+# Standardize the features so they are on comparable scales.
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Create and train an SVM with a linear decision boundary.
+model = SVC(kernel='linear')
+model.fit(X_scaled, y)
+
+# Scale new data using the same scaler fitted on the training data.
+new_student = pd.DataFrame({'Hours': [4], 'Attendance': [75]})
+new_student_scaled = scaler.transform(new_student)
+
+# Predict whether the new student passes or fails.
+predicted_result = model.predict(new_student_scaled)
+
+print("\nPredicted result:", predicted_result[0])
+print("Training accuracy:", model.score(X_scaled, y))
+
+# Plot students using Hours and Attendance; color represents the actual class.
+plt.scatter(X['Hours'], X['Attendance'], c=y, cmap='coolwarm', s=100)
+plt.xlabel("Hours Studied")
+plt.ylabel("Attendance")
+plt.title("SVM Classification: Pass or Fail")
+plt.grid(True)
+plt.show()
+
+
+======================================================================
+EXPERIMENT 7 — DBSCAN CLUSTERING
+======================================================================
+
+# Import pandas, plotting tools, DBSCAN clustering, and feature scaling.
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import DBSCAN
+from sklearn.preprocessing import StandardScaler
+
+# Create feature data without a target label because DBSCAN is unsupervised.
+data = {
+    'Hours': [1, 1.2, 1.5, 5, 5.2, 5.5, 9],
+    'Attendance': [50, 52, 48, 80, 82, 78, 20]
+}
+
+df = pd.DataFrame(data)
+
+print("Dataset:")
+print(df)
+
+# Select the features to be grouped into clusters.
+X = df[['Hours', 'Attendance']]
+
+# Standardize features because distance is important for DBSCAN.
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# eps is the neighborhood distance; min_samples sets the minimum density.
+model = DBSCAN(eps=0.7, min_samples=2)
+
+# Fit DBSCAN and get a cluster label for every data point.
+# A label of -1 indicates a point identified as noise.
+clusters = model.fit_predict(X_scaled)
+
+# Add the cluster labels to the displayed dataset.
+df['Cluster'] = clusters
+
+print("\nClustering Results:")
+print(df)
+
+# Plot each point and color it according to its assigned cluster label.
+plt.scatter(df['Hours'], df['Attendance'], c=clusters, cmap='rainbow', s=100)
+plt.xlabel("Hours Studied")
+plt.ylabel("Attendance")
+plt.title("DBSCAN Clustering")
+plt.grid(True)
+plt.show()
+
+
+======================================================================
+EXPERIMENT 8 — PRINCIPAL COMPONENT ANALYSIS (PCA)
+======================================================================
+
+# Import pandas, plotting tools, feature scaling, and PCA.
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
+# Create a dataset with three numerical features and no target column.
+data = {
+    'Hours': [1, 2, 3, 4, 5, 6],
+    'Attendance': [50, 55, 60, 70, 80, 90],
+    'Assignments': [40, 50, 55, 65, 75, 85]
+}
+
+df = pd.DataFrame(data)
+
+print("Original Dataset:")
+print(df)
+
+# Standardize the features so differences in scale do not dominate PCA.
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(df)
+
+# Keep two principal components instead of the original three features.
+pca = PCA(n_components=2)
+
+# Fit PCA and transform the standardized data into two components.
+X_pca = pca.fit_transform(X_scaled)
+
+# Store the reduced data in a DataFrame with descriptive column names.
+pca_df = pd.DataFrame(
+    X_pca,
+    columns=['Principal Component 1', 'Principal Component 2']
+)
+
+print("\nReduced Dataset:")
+print(pca_df)
+
+# Show how much variance each principal component explains and the total retained.
+print("\nExplained Variance Ratio:")
+print(pca.explained_variance_ratio_)
+print("Total Variance Retained:", pca.explained_variance_ratio_.sum())
+
+# Plot the observations in the two-dimensional principal-component space.
+plt.scatter(
+    pca_df['Principal Component 1'],
+    pca_df['Principal Component 2'],
+    color='blue',
+    s=100
+)
+plt.xlabel("Principal Component 1")
+plt.ylabel("Principal Component 2")
+plt.title("PCA - Dimensionality Reduction")
+plt.grid(True)
+plt.show()
+
+
+======================================================================
+INSTALLATION COMMANDS — RUN THESE AT THE END / BEFORE RUNNING PROGRAMS
+======================================================================
+
+IMPORTANT:
+Run installation commands in the terminal, not inside the Python file.
+
+1. Check Python:
+   python --version
+
+2. Upgrade pip (optional):
+   python -m pip install --upgrade pip
+
+3. Install all required libraries:
+   python -m pip install pandas matplotlib scikit-learn numpy
+
+If `python` does not work on Windows, try:
+   py -m pip install pandas matplotlib scikit-learn numpy
+
+If using Ubuntu and `pip` is not installed, you may need:
+   sudo apt update
+   sudo apt install python3 python3-pip python3-venv
+
+Then install the Python packages:
+   python3 -m pip install pandas matplotlib scikit-learn numpy
+
+Some managed Ubuntu installations may require a virtual environment:
+   python3 -m venv .venv
+   source .venv/bin/activate
+   python -m pip install pandas matplotlib scikit-learn numpy
+
+HOW TO RUN A PROGRAM
+--------------------
+Example for Experiment 2:
+   python exp2_linear_regression.py
+
+On Ubuntu, if needed:
+   python3 exp2_linear_regression.py
+
+TROUBLESHOOTING
+---------------
+- If a module is missing, install the listed packages using the same
+  Python interpreter used to run the program.
+- If a graph appears, close its window to continue/finish execution.
+- If using an older scikit-learn version, check the AdaBoost note in
+  Experiment 5.
+- These programs are syntactically formatted, but the environment's
+  Python/package versions and lab restrictions can still affect
+  execution. It is wise to test them once before the exam.
+======================================================================
