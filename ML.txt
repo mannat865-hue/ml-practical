@@ -389,6 +389,45 @@ plt.title("PCA - Dimensionality Reduction")
 plt.grid(True)
 plt.show()
 
+======================================================================
+EXPERIMENT 9 - Random forest 
+======================================================================
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+
+# Load dataset
+data = load_iris()
+X = data.data
+y = data.target
+
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# Create model
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+
+# Train model
+model.fit(X_train, y_train)
+
+# Predict
+y_pred = model.predict(X_test)
+
+# Print accuracy
+print("Accuracy:", accuracy_score(y_test, y_pred))
+
+# Visualization
+plt.scatter(range(len(y_test)), y_test, label="Actual")
+plt.scatter(range(len(y_pred)), y_pred, marker="x", label="Predicted")
+plt.xlabel("Test Samples")
+plt.ylabel("Class")
+plt.title("Random Forest Classification")
+plt.legend()
+plt.show()
 
 ======================================================================
 INSTALLATION COMMANDS — RUN THESE AT THE END / BEFORE RUNNING PROGRAMS
